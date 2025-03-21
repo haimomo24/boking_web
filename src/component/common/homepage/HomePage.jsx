@@ -1,12 +1,22 @@
 import React from 'react'
-import Slider from '../Slider'
+
 import SliderComponent from '../Slider'
+import Mainpage from '../Mainpage'
+import MapPage from '../MapPage'
+
+import QuestionPage from '../QuestionPage'
+
 
 
 const HomePage = () => {
   return (
     <div>
        <SliderComponent/>
+       <Mainpage/>
+       <MapPage/>
+      <QuestionPage/>
+      {/* <User/> */}
+      
     </div>
   )
 }

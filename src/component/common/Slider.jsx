@@ -58,7 +58,7 @@ const SliderComponent = () => {
         {/* Item 4 */}
         <div className="slide-item">
           <img
-            src="https://placehold.co/1200x600?text=Slide+4"
+            src="https://muave.disantrangan.vn/images/slider4.jpg"
             className="slide-image"
             alt="Slider image 4"
           />
@@ -67,7 +67,7 @@ const SliderComponent = () => {
         {/* Item 5 */}
         <div className="slide-item">
           <img
-            src="https://placehold.co/1200x600?text=Slide+5"
+            src="images/JUL_1022.png"
             className="slide-image"
             alt="Slider image 5"
           />

@@ -1,23 +1,22 @@
 import React from 'react'
 
-
 const HeaderPage = () => {
   return (
     <div>
         <>
   {/* Hello world */}
-  <header>
-    <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
+  <header className="fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 shadow-md">
       <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-        <a href="https://flowbite.com" className="flex items-center">
+        <a href="#" className="flex items-center">
           <img
-            src="https://muave.disantrangan.vn/images/logo.png"
+            src="images/logo1.jpg"
             className="mr-3 h-6 sm:h-9"
-            alt="Flowbite Logo"
+            alt="Bái đính logo"
           />
-          {/* <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-            Flowbite
-          </span> */}
+           <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+            KDL VHTL Bái Đính 
+          </span> 
         </a>
         <div className="flex items-center lg:order-2">
           <a
@@ -73,7 +72,7 @@ const HeaderPage = () => {
           <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
             <li>
               <a
-                href="#"
+                href=""
                 className="block py-2 pr-4 pl-3 text-white rounded bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0 dark:text-white"
                 aria-current="page"
               >
@@ -98,7 +97,7 @@ const HeaderPage = () => {
             </li>
             <li>
               <a
-                href="#"
+                href="/dashboard"
                 className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
               >
                 Features
@@ -125,8 +124,9 @@ const HeaderPage = () => {
       </div>
     </nav>
   </header>
+  {/* Thêm padding-top để nội dung không bị che khuất bởi header cố định */}
+  <div className="pt-16"></div>
 </>
-
     </div>
   )
 }
