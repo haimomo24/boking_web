@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const menuItems = [
     { name: "Dashboard", path: "/dashboard" },
-    { name: "Quản lý tài khoản", path: "/dashboard/accounts" },
+    { name: "Quản lý tài khoản", path: "/dashboard/user" },
     { name: "Quản lý hình ảnh", path: "/dashboard/images" },
     { name: "Quản lý sản phẩm", path: "/dashboard/products" },
     { name: "Quản lý đơn hàng", path: "/dashboard/orders" },
@@ -52,7 +52,7 @@ export default function Sidebar() {
                                 className={`
                                     flex items-center px-4 py-3 rounded-lg transition-colors
                                     ${pathname === item.path 
-                                        ? "bg-blue-800 text-white" 
+                                        ? "bg-white text-gray-700" 
                                         : "text-white hover:bg-green-600"}
                                 `}
                             >
