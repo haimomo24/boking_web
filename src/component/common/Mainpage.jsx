@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 
 const Mainpage = () => {
+  const router = useRouter();
   const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,6 +57,11 @@ const Mainpage = () => {
     }
   };
 
+  // Hàm xử lý khi click vào ảnh
+  const handleImageClick = (id) => {
+    router.push(`/detail/${id}`);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -93,7 +100,11 @@ const Mainpage = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {currentItems.map((season, index) => (
-            <div key={index} className="relative group overflow-hidden rounded-lg shadow-md">
+            <div 
+              key={index} 
+              className="relative group overflow-hidden rounded-lg shadow-md cursor-pointer"
+              onClick={() => handleImageClick(season.id)}
+            >
               {/* Ảnh */}
               <div className="relative h-64 w-full">
                 <Image 
@@ -110,12 +121,19 @@ const Mainpage = () => {
               </div>
               
               {/* Phần thông tin chỉ hiển thị khi hover */}
-              <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <h3 className="text-xl font-semibold text-white mb-2">{season.title}</h3>
-                <p className="text-white text-sm italic mb-3">{season.time}</p>
-                <p className="text-white text-center">{season.description}</p>
-                <div className="w-10 h-1 bg-red-500 mt-3"></div>
-              </div>
+             {/* Phần thông tin chỉ hiển thị khi hover */}
+<div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+  <h3 className="text-xl font-semibold text-white mb-2">{season.title}</h3>
+  <p className="text-white text-sm italic mb-3">{season.time}</p>
+  <p className="text-white text-center">
+    {season.description && season.description.length > 100 
+      ? `${season.description.substring(0, 100)}...` 
+      : season.description}
+  </p>
+  <div className="w-10 h-1 bg-red-500 mt-3"></div>
+ 
+</div>
+
             </div>
           ))}
         </div>

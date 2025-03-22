@@ -8,7 +8,7 @@ const FooterPage = () => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center md:items-start">
         {/* Phần thông tin bên trái */}
         <div className="md:w-1/2">
-          <img src="images/logo1.jpg" alt="Trang An Logo" className="w-20 mb-3" />
+          <img src="/images/logo1.jpg" alt="Trang An Logo" className="w-20 mb-3" />
           
           <p className="mb-3 text-lg">
             Quần thể Danh thắng Tràng An được UNESCO công nhận là di sản thế giới kép từ 2014
