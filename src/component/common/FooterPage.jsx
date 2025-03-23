@@ -11,10 +11,10 @@ const FooterPage = () => {
           <img src="/images/logo1.jpg" alt="Trang An Logo" className="w-20 mb-3" />
           
           <p className="mb-3 text-lg">
-            Quần thể Danh thắng Tràng An được UNESCO công nhận là di sản thế giới kép từ 2014
+            Khu du lịch VHTL Bái Đính được UNESCO công nhận là di sản thế giới kép từ 2014
           </p>
           <p className="flex items-center gap-2">
-            <FaMapMarkerAlt className="text-lg" /> Khu Du Lịch Sinh Thái Tràng An, Xã Ninh Xuân, Huyện Hoa Lư, Ninh Bình
+            <FaMapMarkerAlt className="text-lg" /> Khu Du Lịch VHTL Bái Đính, Xã Gia Sinh, Huyện Gia Viễn, Ninh Bình
           </p>
           <p className="flex items-center gap-2 mt-2">
             <FaEnvelope className="text-lg" /> sales@disantrangan.com
@@ -23,7 +23,7 @@ const FooterPage = () => {
             <FaPhoneAlt className="text-lg" /> 19009251
           </p>
           <p className="flex items-center gap-2 mt-2">
-            <FaFacebookF className="text-lg" /> Fanpage Di sản Tràng An
+            <FaFacebookF className="text-lg" /> Fanpage KDL VHTL Bái Đính
           </p>
         </div>
 
@@ -59,7 +59,7 @@ const FooterPage = () => {
 
       {/* Phần cuối */}
       <div className="text-center text-sm mt-10 opacity-80">
-        © 2024 Du Lịch Tràng An. Tất cả quyền được bảo lưu.
+        Khu du Lịch VHTL Bái Đính. Tất cả quyền được bảo lưu.
       </div>
     </footer>
     </div>

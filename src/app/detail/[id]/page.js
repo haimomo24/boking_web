@@ -130,7 +130,7 @@ const DetailPage = () => {
 
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Cột nội dung chính - kiểu bài báo */}
-      <div className="lg:w-3/4">
+      <div className="lg:w-3/3">
         <article className="prose prose-lg max-w-none">
           {/* Phần giới thiệu */}
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Giới thiệu</h2>
@@ -243,32 +243,7 @@ const DetailPage = () => {
       
       {/* Sidebar */}
       {/* Sidebar */}
-<div className="lg:w-1/4">
-  {/* Box đặt tour */}
-  <div className="bg-white rounded-lg shadow-md p-6 mb-8 sticky mt-[30px] top-24">
-    <h3 className="text-xl font-bold text-gray-800 mb-4">Đặt lịch tham quan</h3>
-    <div className="space-y-4 mb-6">
-      <div>
-        <label className="block text-gray-700 text-sm font-medium mb-1">Ngày tham quan</label>
-        <input type="date" className="w-full p-2 border border-gray-300 rounded-md" />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-medium mb-1">Số lượng khách</label>
-        <select className="w-full p-2 border border-gray-300 rounded-md">
-          <option>1 người</option>
-          <option>2 người</option>
-          <option>3 người</option>
-          <option>4 người</option>
-          <option>5+ người</option>
-        </select>
-      </div>
-    </div>
-    <button className="w-full bg-red-600 text-white py-3 rounded-md font-medium hover:bg-red-700 transition-colors">
-      Đặt lịch ngay
-    </button>
-    <p className="text-center text-sm text-gray-500 mt-4">Không mất phí khi đặt lịch</p>
-  </div>
-</div>
+
     </div>
   </div>
 </div>

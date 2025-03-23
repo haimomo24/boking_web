@@ -5,8 +5,8 @@ import path from 'path';
 import { mkdir } from 'fs/promises';
 
 // Phương thức GET để lấy thông tin người dùng theo ID
-export async function GET(request, { params }) {
-    const { id } = params;
+export async function GET(request, context) {
+    const id = context.params.id;
     
     try {
         const [rows] = await pool.query(
@@ -32,8 +32,8 @@ export async function GET(request, { params }) {
 }
 
 // Phương thức PUT để cập nhật thông tin người dùng
-export async function PUT(request, { params }) {
-    const { id } = params;
+export async function PUT(request, context) {
+    const id = context.params.id;
     
     try {
         const formData = await request.formData();
@@ -112,9 +112,9 @@ export async function PUT(request, { params }) {
     }
 }
 
-// Giữ nguyên phương thức DELETE đã có
-export async function DELETE(request, { params }) {
-    const { id } = params;
+// Phương thức DELETE để xóa người dùng
+export async function DELETE(request, context) {
+    const id = context.params.id;
     
     try {
         // Kiểm tra xem người dùng có phải là admin không
