@@ -31,7 +31,7 @@ const SliderComponent = () => {
         {/* Item 1 */}
         <div className="slide-item">
           <img
-            src="https://muave.disantrangan.vn/images/slider2.jpg"
+            src="https://storage-vnportal.vnpt.vn/nbh-ubnd/2824/Baidinh/bd-toan-canh.jpg"
             className="slide-image"
             alt="Slider image 1"
           />
@@ -40,7 +40,7 @@ const SliderComponent = () => {
         {/* Item 2 */}
         <div className="slide-item">
           <img
-            src="https://muave.disantrangan.vn/images/slider3.jpg"
+            src="/images/DJI_0616.JPG"
             className="slide-image"
             alt="Slider image 2"
           />

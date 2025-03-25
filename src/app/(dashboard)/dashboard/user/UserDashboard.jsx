@@ -2,32 +2,82 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
 
+  // Kiểm tra quyền truy cập khi component mount
   useEffect(() => {
-    const fetchUsers = async () => {
+    const checkAuth = async () => {
       try {
-        setLoading(true);
-        const response = await axios.get('/api/users');
-        setUsers(response.data);
-        setError(null);
+        // Lấy thông tin người dùng từ localStorage - SỬA KEY TỪ 'userInfo' THÀNH 'user'
+        const userInfoString = localStorage.getItem('user');
+        
+        // Log để debug
+        console.log("User info string:", userInfoString);
+        
+        if (!userInfoString) {
+          console.log("No user info found in localStorage");
+          setError('Bạn cần đăng nhập để truy cập trang này');
+          setLoading(false);
+          return;
+        }
+        
+        // Parse thông tin người dùng
+        let userInfo;
+        try {
+          userInfo = JSON.parse(userInfoString);
+          console.log("Parsed user info:", userInfo);
+        } catch (parseError) {
+          console.error("Error parsing user info:", parseError);
+          setError('Dữ liệu người dùng không hợp lệ');
+          setLoading(false);
+          return;
+        }
+        
+        // Kiểm tra level của người dùng
+        // Chấp nhận cả "admin" và "ADMIN" (không phân biệt hoa thường)
+        const userLevel = userInfo.level?.toLowerCase();
+        console.log("User level:", userLevel);
+        
+        if (userLevel !== 'admin') {
+          console.log("User is not admin");
+          setError('Bạn không có quyền truy cập vào trang này');
+          setLoading(false);
+          return;
+        }
+        
+        // Nếu là admin, cho phép truy cập và tải dữ liệu
+        console.log("User is admin, granting access");
+        setAuthorized(true);
+        fetchUsers();
       } catch (err) {
-        console.error('Error fetching users:', err);
-        setError('Không thể tải danh sách người dùng. Vui lòng thử lại sau.');
-      } finally {
+        console.error('Auth check error:', err);
+        setError('Có lỗi xảy ra khi kiểm tra quyền truy cập');
         setLoading(false);
       }
     };
-
-    fetchUsers();
+    
+    checkAuth();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('/api/users');
+      console.log("Fetched users:", response.data);
+      setUsers(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Không thể tải danh sách người dùng. Vui lòng thử lại sau.');
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
@@ -47,6 +97,7 @@ const UserDashboard = () => {
 
   // Hàm tạo avatar từ tên người dùng (dùng khi avatar không có hoặc lỗi)
   const getInitials = (name) => {
+    if (!name) return "U";
     return name
       .split(' ')
       .map(word => word[0])
@@ -64,6 +115,35 @@ const UserDashboard = () => {
     return colors[id % colors.length];
   };
 
+  // Hiển thị trạng thái không có quyền truy cập
+  if (error && !authorized) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-red-100 border-l-4 border-red-500 p-4 my-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+            </div>
+          </div>
+        </div>
+        <div className="text-center mt-6">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Quay lại Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Hiển thị trạng thái loading
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -72,21 +152,37 @@ const UserDashboard = () => {
     );
   }
 
-  if (error) {
+  // Hiển thị lỗi khác khi đã được xác thực
+  if (error && authorized) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 my-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 my-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
           </div>
-          <div className="ml-3">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
+        </div>
+        <div className="text-center mt-4">
+          <button 
+            onClick={() => fetchUsers()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Thử lại
+          </button>
         </div>
       </div>
     );
+  }
+
+  // Chỉ hiển thị nội dung khi đã được xác thực
+  if (!authorized) {
+    return null;
   }
 
   return (
@@ -153,7 +249,7 @@ const UserDashboard = () => {
                   <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
                   <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.level === 'admin' 
+                      user.level?.toLowerCase() === 'admin' 
                         ? 'bg-purple-100 text-purple-800' 
                         : 'bg-green-100 text-green-800'
                     }`}>
@@ -171,10 +267,10 @@ const UserDashboard = () => {
                       <button
                         onClick={() => handleDelete(user.id)}
                         className={`text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md ${
-                          user.level === 'admin' ? 'opacity-50 cursor-not-allowed' : ''
+                          user.level?.toLowerCase() === 'admin' ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
-                        disabled={user.level === 'admin'} // Không cho phép xóa tài khoản admin
-                        title={user.level === 'admin' ? 'Không thể xóa tài khoản admin' : ''}
+                        disabled={user.level?.toLowerCase() === 'admin'} // Không cho phép xóa tài khoản admin
+                        title={user.level?.toLowerCase() === 'admin' ? 'Không thể xóa tài khoản admin' : ''}
                       >
                         Xóa
                       </button>
@@ -191,3 +287,4 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
+
