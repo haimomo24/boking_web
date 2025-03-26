@@ -191,7 +191,7 @@ const UserDashboard = () => {
         <h1 className="text-2xl font-bold text-gray-800">Quản Lý Người Dùng</h1>
         <button 
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-          onClick={() => router.push('/dashboard/user/add')}
+          onClick={() => router.push('/register')}
         >
           Thêm Người Dùng Mới
         </button>

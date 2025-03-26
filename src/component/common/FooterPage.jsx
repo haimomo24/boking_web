@@ -1,10 +1,70 @@
 "use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { FaFacebookF, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaEye } from "react-icons/fa";
 
 const FooterPage = () => {
+  // Khai báo tất cả state ở đầu component
   const [visitorCount, setVisitorCount] = useState(0);
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  // Hàm xử lý gửi form liên hệ
+  const handleSubmitContact = async (e) => {
+    e.preventDefault();
+    
+    if (!acceptTerms) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Vui lòng đồng ý với điều khoản và điều kiện'
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+    
+    try {
+      const response = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactName,
+          phone: contactPhone,
+          email: contactEmail || '',
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Có lỗi xảy ra khi gửi thông tin');
+      }
+      
+      // Reset form
+      setContactName('');
+      setContactPhone('');
+      setContactEmail('');
+      setAcceptTerms(false);
+      
+      setSubmitStatus({
+        type: 'success',
+        message: 'Gửi thông tin thành công! Chúng tôi sẽ liên hệ với bạn sớm.'
+      });
+    } catch (error) {
+      console.error('Lỗi khi gửi form:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: 'Không thể gửi thông tin. Vui lòng thử lại sau.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     // Kiểm tra xem đã có số lượt truy cập trong localStorage chưa
@@ -20,8 +80,6 @@ const FooterPage = () => {
       localStorage.setItem('visitorCount', '1');
       setVisitorCount(1);
     }
-
-  
   }, []);
 
   return (
@@ -52,7 +110,6 @@ const FooterPage = () => {
             <div className="mt-4 bg-[#2a4d47] p-3 rounded-lg inline-flex items-center gap-2">
               <FaEye className="text-lg text-yellow-300" />
               <div>
-                
                 <p className="font-bold text-yellow-300">{visitorCount.toLocaleString()}</p>
               </div>
             </div>
@@ -61,30 +118,55 @@ const FooterPage = () => {
           {/* Phần form bên phải */}
           <div className="md:w-1/2 bg-opacity-50 p-5 rounded-lg">
             <h3 className="text-xl font-semibold mb-3">Để lại thông tin và nhận tư vấn</h3>
-            <input
-              type="text"
-              placeholder="Họ và tên"
-              className="w-full p-3 rounded-md mb-3 text-black bg-white"
-            />
-            <input
-              type="text"
-              placeholder="Số điện thoại"
-              className="w-full p-3 rounded-md mb-3 text-black bg-white"
-            />
-            <input
-              type="email"
-              placeholder="Email (không bắt buộc)"
-              className="w-full p-3 rounded-md mb-3 text-black bg-white"
-            />
-            <div className="flex items-center gap-2 mb-3">
-              <input type="checkbox" id="terms" />
-              <label htmlFor="terms" className="text-sm">
-                Tôi đồng ý với các <a href="#" className="text-blue-400">điều khoản & điều kiện</a>
-              </label>
-            </div>
-            <button className="bg-pink-500 text-white px-5 py-2 rounded-lg hover:bg-pink-600">
-              Gửi thông tin →
-            </button>
+            <form onSubmit={handleSubmitContact}>
+              <input
+                type="text"
+                placeholder="Họ và tên"
+                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Số điện thoại"
+                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email (không bắt buộc)"
+                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+              />
+              <div className="flex items-center gap-2 mb-3">
+                <input 
+                  type="checkbox" 
+                  id="terms" 
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  required
+                />
+                <label htmlFor="terms" className="text-sm">
+                  Tôi đồng ý với các <a href="#" className="text-blue-400">điều khoản & điều kiện</a>
+                </label>
+              </div>
+              <button 
+                type="submit"
+                className="bg-pink-500 text-white px-5 py-2 rounded-lg hover:bg-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Đang gửi...' : 'Gửi thông tin →'}
+              </button>
+              {submitStatus && (
+                <div className={`mt-3 p-2 rounded ${submitStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {submitStatus.message}
+                </div>
+              )}
+            </form>
           </div>
         </div>
 
@@ -94,7 +176,7 @@ const FooterPage = () => {
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default FooterPage
+export default FooterPage;

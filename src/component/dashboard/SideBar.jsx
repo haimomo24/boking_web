@@ -9,7 +9,7 @@ const menuItems = [
     { name: "Quản lý tài khoản", path: "/dashboard/user" },
     { name: "Quản lý hình ảnh", path: "/dashboard/imagebooking" },
     { name: "Danh sách hình ảnh  ", path: "/dashboard/listimage" },
-    { name: "Quản lý đơn hàng", path: "/dashboard/orders" },
+    { name: "Danh sách nhận tư vấn  ", path: "/dashboard/contact" },
     { name: "Home", path: "/" },
 ];
 

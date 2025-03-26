@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { FaEye } from 'react-icons/fa';
 
 const DetailPage = () => {
   const params = useParams();
@@ -13,6 +14,7 @@ const DetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
+  const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
     const fetchProductDetail = async () => {
@@ -27,6 +29,9 @@ const DetailPage = () => {
         const data = await response.json();
         setProduct(data);
         setActiveImage(data.images); // Mặc định hiển thị ảnh chính
+        
+        // Xử lý đếm lượt xem
+        updateViewCount(id);
       } catch (err) {
         console.error('Error fetching product details:', err);
         setError(err.message);
@@ -39,6 +44,28 @@ const DetailPage = () => {
       fetchProductDetail();
     }
   }, [id]);
+
+  // Hàm cập nhật và lấy số lượt xem
+  const updateViewCount = (productId) => {
+    // Lấy tất cả lượt xem từ localStorage
+    const allViewsString = localStorage.getItem('productViews');
+    const allViews = allViewsString ? JSON.parse(allViewsString) : {};
+    
+    // Lấy lượt xem hiện tại của sản phẩm này
+    const currentViews = allViews[productId] || 0;
+    
+    // Tăng lượt xem lên 1
+    const newViews = currentViews + 1;
+    
+    // Cập nhật lượt xem cho sản phẩm này
+    allViews[productId] = newViews;
+    
+    // Lưu lại vào localStorage
+    localStorage.setItem('productViews', JSON.stringify(allViews));
+    
+    // Cập nhật state để hiển thị
+    setViewCount(newViews);
+  };
 
   // Hàm xử lý khi click vào ảnh nhỏ
   const handleThumbnailClick = (imageUrl) => {
@@ -99,6 +126,8 @@ const DetailPage = () => {
               <div className="mb-2 flex items-center">
                 <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Điểm tham quan</span>
                 <span className="ml-3 text-sm opacity-80">Ninh Bình, Việt Nam</span>
+                
+               
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">{product.title}</h1>
               <p className="text-lg opacity-90 max-w-2xl">
@@ -229,6 +258,12 @@ const DetailPage = () => {
                   <li>Nên đi sớm để tránh đông người và nắng nóng</li>
                 </ul>
               </div>
+
+               {/* Hiển thị số lượt xem */}
+               <div className="ml-auto flex items-center  px-3 py-1 rounded-full">
+                  <FaEye className="text-yellow-400 mr-2" />
+                  <span className="text-yellow-400 font-medium">{viewCount.toLocaleString()} lượt xem</span>
+                </div>
             </article>
           </div>
         </div>
@@ -238,3 +273,4 @@ const DetailPage = () => {
 };
 
 export default DetailPage;
+
