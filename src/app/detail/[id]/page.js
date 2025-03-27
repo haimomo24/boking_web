@@ -169,7 +169,7 @@ const DetailPage = () => {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <p className="text-sm text-gray-500 italic text-center mb-6">Toàn cảnh khu du lịch văn hóa tâm linh Bái Đính từ trên cao</p>
+               
                 
                 <p className="text-gray-700 mb-6">{product.description}</p>
               </div>
@@ -184,7 +184,7 @@ const DetailPage = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <p className="text-sm text-gray-500 italic text-center mb-6">Kiến trúc độc đáo của chùa Bái Đính</p>
+                 
                   
                   <p className="text-gray-700 mb-6">{product.description2 || "Chùa Bái Đính nổi tiếng với lối kiến trúc độc đáo, kết hợp giữa truyền thống và hiện đại. Công trình được xây dựng với quy mô lớn, sử dụng các vật liệu cao cấp như đá, gỗ quý và đồng. Điểm nổi bật trong kiến trúc của chùa là sự hài hòa giữa cảnh quan thiên nhiên và công trình tôn giáo, tạo nên một không gian tâm linh trang nghiêm nhưng không kém phần thoáng đãng."}</p>
                 </div>
@@ -200,7 +200,7 @@ const DetailPage = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <p className="text-sm text-gray-500 italic text-center mb-6">Tượng Phật tại chùa Bái Đính</p>
+                 
                   <p className="text-gray-700 mb-6">{product.description3 || "Chùa Bái Đính là nơi có nhiều tượng Phật với kích thước lớn và được chế tác tinh xảo. Nổi bật nhất là tượng Phật Thích Ca bằng đồng mạ vàng cao 10m, nặng 100 tấn - được xem là tượng Phật bằng đồng lớn nhất Đông Nam Á. Bên cạnh đó còn có tượng Phật Di Lặc, tượng Tam Thế Phật và nhiều tượng Phật khác, tất cả đều được làm từ đồng và được chạm khắc công phu."}</p>
                 </div>
               )}
@@ -208,7 +208,7 @@ const DetailPage = () => {
               {/* Ảnh 4 và mô tả 4 - Sửa phần này để hiển thị đầy đủ ảnh */}
               {product.image4 && (
                 <div className="my-8">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Hành lang La Hán</h3>
+                  
                   <div className="w-full rounded-lg overflow-hidden mb-4" style={{ height: '400px' }}>
                     <img 
                       src={product.image4} 
@@ -216,7 +216,7 @@ const DetailPage = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <p className="text-sm text-gray-500 italic text-center mb-6">Hành lang với 500 tượng La Hán được chạm khắc tinh xảo</p>
+                 
                   
                   <p className="text-gray-700 mb-6">{product.description4 || "Hành lang La Hán là một trong những công trình đặc sắc nhất tại chùa Bái Đính. Với 500 tượng La Hán được chạm khắc từ đá, mỗi tượng mang một nét mặt và tư thế khác nhau, thể hiện sự đa dạng trong cảm xúc và tính cách. Đi dọc hành lang, du khách có thể chiêm ngưỡng từng tượng La Hán và cảm nhận được sự tĩnh lặng, thanh bình nơi cửa Phật."}</p>
                 </div>
