@@ -1,10 +1,22 @@
-import pool from "../conect";
+import { NextResponse } from 'next/server';
+import dbUtils, { sql, poolPromise } from '../conect';
 
 export async function GET(req) {
     try {
-        const [rows] = await pool.query("SELECT id, username, email, level, avatar FROM user");
-        return Response.json(rows);
+        // Kết nối đến SQL Server
+        const pool = await poolPromise;
+        
+        // Thực hiện truy vấn
+        const result = await pool.request()
+            .query("SELECT id, username, email, level, avatar FROM dbo.users");
+        
+        // Trả về kết quả
+        return NextResponse.json(result.recordset);
     } catch (error) {
-        return Response.json({ message: "Lỗi truy vấn dữ liệu", error }, { status: 500 });
+        console.error('Error fetching users:', error);
+        return NextResponse.json(
+            { message: "Lỗi truy vấn dữ liệu", error: error.message },
+            { status: 500 }
+        );
     }
 }

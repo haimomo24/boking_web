@@ -20,7 +20,17 @@ const Contact = () => {
           throw new Error('Lỗi khi lấy dữ liệu');
         }
         const data = await response.json();
-        setContacts(data);
+        
+        // Lấy trạng thái tư vấn từ localStorage
+        const advisedStatusFromStorage = JSON.parse(localStorage.getItem('advisedContacts') || '{}');
+        
+        // Kết hợp dữ liệu từ API với trạng thái từ localStorage
+        const contactsWithStatus = data.map(contact => ({
+          ...contact,
+          advised: advisedStatusFromStorage[contact.id] || false
+        }));
+        
+        setContacts(contactsWithStatus);
         setLoading(false);
       } catch (error) {
         console.error('Lỗi:', error);
@@ -43,13 +53,42 @@ const Contact = () => {
           throw new Error('Lỗi khi xóa');
         }
         
+        // Cập nhật danh sách liên hệ
         setContacts(contacts.filter(contact => contact.id !== id));
+        
+        // Cập nhật localStorage - xóa trạng thái của liên hệ đã bị xóa
+        const advisedStatusFromStorage = JSON.parse(localStorage.getItem('advisedContacts') || '{}');
+        delete advisedStatusFromStorage[id];
+        localStorage.setItem('advisedContacts', JSON.stringify(advisedStatusFromStorage));
+        
         alert('Xóa liên hệ thành công');
       } catch (error) {
         console.error('Lỗi:', error);
         alert('Không thể xóa liên hệ');
       }
     }
+  };
+  
+  // Hàm xử lý thay đổi trạng thái tư vấn - chỉ lưu vào localStorage
+  const handleToggleAdvised = (id) => {
+    // Tìm liên hệ cần cập nhật
+    const contactToUpdate = contacts.find(contact => contact.id === id);
+    if (!contactToUpdate) return;
+    
+    // Đảo ngược trạng thái tư vấn
+    const newAdvisedStatus = !contactToUpdate.advised;
+    
+    // Cập nhật state
+    setContacts(contacts.map(contact => 
+      contact.id === id 
+        ? { ...contact, advised: newAdvisedStatus } 
+        : contact
+    ));
+    
+    // Lưu trạng thái vào localStorage
+    const advisedStatusFromStorage = JSON.parse(localStorage.getItem('advisedContacts') || '{}');
+    advisedStatusFromStorage[id] = newAdvisedStatus;
+    localStorage.setItem('advisedContacts', JSON.stringify(advisedStatusFromStorage));
   };
 
   // Tính toán phân trang
@@ -103,7 +142,8 @@ const Contact = () => {
               <th>Tên</th>
               <th>Email</th>
               <th>Số điện thoại</th>
-              
+              <th>Trạng thái tư vấn</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -114,12 +154,27 @@ const Contact = () => {
                   <td>{contact.name}</td>
                   <td>{contact.email}</td>
                   <td>{contact.phone}</td>
-                 
+                  <td>
+                    <span className={`status-badge ${contact.advised ? 'advised' : 'not-advised'}`}>
+                      {contact.advised ? 'Đã tư vấn' : 'Chưa tư vấn'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        className={`status-btn ${contact.advised ? 'mark-not-advised' : 'mark-advised'}`}
+                        onClick={() => handleToggleAdvised(contact.id)}
+                      >
+                        {contact.advised ? 'Đánh dấu chưa tư vấn' : 'Đánh dấu đã tư vấn'}
+                      </button>
+                      
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="no-data">Không tìm thấy liên hệ nào</td>
+                <td colSpan="6" className="no-data">Không tìm thấy liên hệ nào</td>
               </tr>
             )}
           </tbody>
@@ -205,7 +260,7 @@ const Contact = () => {
           background-color: #e9f7fe;
         }
         
-        .view-btn, .delete-btn {
+        .view-btn, .delete-btn, .status-btn {
           padding: 6px 12px;
           margin-right: 5px;
           cursor: pointer;
@@ -231,6 +286,47 @@ const Contact = () => {
         
         .delete-btn:hover {
           background-color: #c0392b;
+        }
+        
+        .status-btn {
+          background-color: #f39c12;
+          color: white;
+        }
+        
+        .mark-advised {
+          background-color: #2ecc71;
+        }
+        
+        .mark-advised:hover {
+          background-color: #27ae60;
+        }
+        
+        .mark-not-advised {
+          background-color: #f39c12;
+        }
+        
+        .mark-not-advised:hover {
+          background-color: #d35400;
+        }
+        
+        .status-badge {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: bold;
+        }
+        
+        .advised {
+          background-color: #d5f5e3;
+          color: #27ae60;
+          border: 1px solid #2ecc71;
+        }
+        
+        .not-advised {
+          background-color: #fef5e7;
+          color: #d35400;
+          border: 1px solid #f39c12;
         }
         
         .error-container {
@@ -350,6 +446,7 @@ const Contact = () => {
           color: #666;
           margin-top: 10px;
           font-size: 14px;
+
         }
       `}</style>
     </div>

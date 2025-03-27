@@ -37,14 +37,26 @@ const Mainpage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await fetch('/api/imagebooking');
         
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok: ' + response.statusText);
         }
         
         const data = await response.json();
-        setSeasons(data);
+        
+        // Kiểm tra cấu trúc dữ liệu trả về
+        if (Array.isArray(data)) {
+          setSeasons(data);
+        } else if (data.recordset && Array.isArray(data.recordset)) {
+          // Nếu API trả về dạng { recordset: [...] }
+          setSeasons(data.recordset);
+        } else {
+          console.error('Unexpected data format:', data);
+          setSeasons([]);
+        }
+        
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -89,6 +101,12 @@ const Mainpage = () => {
   // Hàm xử lý khi click vào ảnh
   const handleImageClick = (id) => {
     router.push(`/detail/${id}`);
+  };
+
+  // Hàm xử lý lỗi ảnh
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Tránh vòng lặp vô hạn
+    e.target.src = '/placeholder.jpg'; // Thay thế bằng ảnh mặc định
   };
 
   // Loading state với hiệu ứng skeleton
@@ -152,13 +170,12 @@ const Mainpage = () => {
             >
               {/* Ảnh với aspect ratio cố định */}
               <div className="relative w-full h-0 pb-[75%]">
-                <Image 
+                {/* Sử dụng thẻ img thông thường thay vì Image component để xử lý lỗi tốt hơn */}
+                <img 
                   src={season.images} 
-                  alt={season.title} 
-                  fill 
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-110" 
-                  loading="lazy"
+                  alt={season.title || 'Hình ảnh'} 
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  onError={handleImageError}
                 />
               </div>
               

@@ -1,31 +1,21 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-
-// Cấu hình kết nối MySQL
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'booking'
-};
+import dbUtils, { sql, poolPromise } from '../conect';
 
 export async function GET() {
   try {
-    // Tạo kết nối đến MySQL
-    const connection = await mysql.createConnection(dbConfig);
+    // Kết nối đến SQL Server
+    const pool = await poolPromise;
     
     // Thực hiện truy vấn
-    const [rows] = await connection.execute('SELECT * FROM contact');
-    
-    // Đóng kết nối
-    await connection.end();
+    const result = await pool.request()
+      .query('SELECT * FROM dbo.contact');
     
     // Trả về dữ liệu dạng JSON
-    return NextResponse.json(rows);
+    return NextResponse.json(result.recordset);
   } catch (error) {
     console.error('Error fetching contacts:', error);
     return NextResponse.json(
-      { error: 'Không thể lấy dữ liệu liên hệ' },
+      { error: 'Không thể lấy dữ liệu liên hệ', message: error.message },
       { status: 500 }
     );
   }
@@ -44,27 +34,29 @@ export async function POST(request) {
       );
     }
     
-    // Tạo kết nối đến MySQL
-    const connection = await mysql.createConnection(dbConfig);
+    // Kết nối đến SQL Server
+    const pool = await poolPromise;
     
     // Thực hiện truy vấn thêm dữ liệu
-    const [result] = await connection.execute(
-      'INSERT INTO contact (name, phone, email) VALUES (?, ?, ?)',
-      [data.name, data.phone, data.email || '']
-    );
-    
-    // Đóng kết nối
-    await connection.end();
+    const result = await pool.request()
+      .input('name', sql.NVarChar, data.name)
+      .input('phone', sql.NVarChar, data.phone)
+      .input('email', sql.NVarChar, data.email || '')
+      .query(`
+        INSERT INTO dbo.contact (name, phone, email)
+        VALUES (@name, @phone, @email);
+        SELECT SCOPE_IDENTITY() AS id;
+      `);
     
     return NextResponse.json({ 
       success: true, 
-      id: result.insertId,
+      id: result.recordset[0].id,
       message: 'Thêm liên hệ thành công'
     });
   } catch (error) {
     console.error('Error adding contact:', error);
     return NextResponse.json(
-      { error: 'Không thể thêm liên hệ' },
+      { error: 'Không thể thêm liên hệ', message: error.message },
       { status: 500 }
     );
   }
@@ -74,22 +66,31 @@ export async function DELETE(request) {
   try {
     // Lấy ID từ URL
     const url = new URL(request.url);
-    const id = url.pathname.split('/').pop();
+    const id = url.searchParams.get('id');
     
-    // Tạo kết nối đến MySQL
-    const connection = await mysql.createConnection(dbConfig);
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID là bắt buộc' },
+        { status: 400 }
+      );
+    }
+    
+    // Kết nối đến SQL Server
+    const pool = await poolPromise;
     
     // Thực hiện truy vấn xóa
-    await connection.execute('DELETE FROM contact WHERE id = ?', [id]);
+    await pool.request()
+      .input('id', sql.Int, id)
+      .query('DELETE FROM dbo.contact WHERE id = @id');
     
-    // Đóng kết nối
-    await connection.end();
-    
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      message: 'Xóa liên hệ thành công'
+    });
   } catch (error) {
     console.error('Error deleting contact:', error);
     return NextResponse.json(
-      { error: 'Không thể xóa liên hệ' },
+      { error: 'Không thể xóa liên hệ', message: error.message },
       { status: 500 }
     );
   }

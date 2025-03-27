@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '../../conect';
+import dbUtils, { sql, poolPromise } from '../../conect';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import { mkdir } from 'fs/promises';
@@ -9,19 +9,27 @@ export async function GET(request, context) {
     const id = context.params.id;
     
     try {
-        const [rows] = await pool.query(
-            "SELECT id, username, email, level, avatar FROM user WHERE id = ?", 
-            [id]
-        );
+        // Kết nối đến database
+        const pool = await poolPromise;
         
-        if (rows.length === 0) {
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query("SELECT id, username, email, level FROM dbo.users WHERE id = @id");
+        
+        if (result.recordset.length === 0) {
             return NextResponse.json(
                 { message: "Không tìm thấy người dùng" }, 
                 { status: 404 }
             );
         }
         
-        return NextResponse.json(rows[0]);
+        // Thêm trường avatar trống
+        const user = {
+            ...result.recordset[0],
+            avatar: ''
+        };
+        
+        return NextResponse.json(user);
     } catch (error) {
         console.error('Error fetching user:', error);
         return NextResponse.json(
@@ -43,16 +51,22 @@ export async function PUT(request, context) {
         const level = formData.get('level');
         const avatarFile = formData.get('avatar');
         
+        // Kết nối đến database
+        const pool = await poolPromise;
+        
         // Kiểm tra người dùng tồn tại
-        const [userCheck] = await pool.query("SELECT * FROM user WHERE id = ?", [id]);
-        if (userCheck.length === 0) {
+        const userCheckResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query("SELECT * FROM dbo.users WHERE id = @id");
+            
+        if (userCheckResult.recordset.length === 0) {
             return NextResponse.json(
                 { message: "Không tìm thấy người dùng" }, 
                 { status: 404 }
             );
         }
         
-        let avatarUrl = userCheck[0].avatar; // Giữ nguyên avatar cũ nếu không có file mới
+        let avatarUrl = ''; // Mặc định là chuỗi rỗng vì bảng không có cột avatar
         
         // Xử lý upload avatar nếu có
         if (avatarFile && avatarFile.size > 0) {
@@ -72,36 +86,34 @@ export async function PUT(request, context) {
                 buffer
             );
             
-            // Cập nhật URL avatar
+            // Cập nhật URL avatar (chỉ lưu trong response, không lưu vào DB)
             avatarUrl = `/uploads/${filename}`;
         }
         
-        // Xây dựng câu truy vấn SQL dựa trên các trường được cập nhật
-        let sql = "UPDATE user SET username = ?, email = ?, level = ?";
-        let params = [username, email, level];
+        // Xây dựng câu truy vấn SQL với tham số
+        const updateRequest = pool.request()
+            .input('id', sql.Int, id)
+            .input('username', sql.NVarChar, username)
+            .input('email', sql.NVarChar, email)
+            .input('level', sql.Int, parseInt(level)); // Chuyển level thành số
+        
+        let sqlQuery = "UPDATE dbo.users SET username = @username, email = @email, level = @level";
         
         // Thêm password vào câu truy vấn nếu có
         if (password) {
-            sql += ", password = ?";
-            params.push(password);
-        }
-        
-        // Thêm avatar vào câu truy vấn nếu có
-        if (avatarUrl) {
-            sql += ", avatar = ?";
-            params.push(avatarUrl);
+            sqlQuery += ", password = @password";
+            updateRequest.input('password', sql.NVarChar, password);
         }
         
         // Thêm điều kiện WHERE
-        sql += " WHERE id = ?";
-        params.push(id);
+        sqlQuery += " WHERE id = @id";
         
         // Thực hiện truy vấn cập nhật
-        await pool.query(sql, params);
+        await updateRequest.query(sqlQuery);
         
         return NextResponse.json({ 
             message: "Cập nhật thông tin người dùng thành công",
-            avatar: avatarUrl
+            avatar: avatarUrl // Trả về URL avatar nếu có upload
         });
     } catch (error) {
         console.error('Error updating user:', error);
@@ -117,19 +129,27 @@ export async function DELETE(request, context) {
     const id = context.params.id;
     
     try {
-        // Kiểm tra xem người dùng có phải là admin không
-        const [user] = await pool.query("SELECT level FROM user WHERE id = ?", [id]);
+        // Kết nối đến database
+        const pool = await poolPromise;
         
-        if (user.length === 0) {
+        // Kiểm tra xem người dùng có phải là admin không
+        const userResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query("SELECT level FROM dbo.users WHERE id = @id");
+        
+        if (userResult.recordset.length === 0) {
             return NextResponse.json({ message: "Người dùng không tồn tại" }, { status: 404 });
         }
         
-        if (user[0].level === 'admin') {
+        const userLevel = userResult.recordset[0].level;
+        if (userLevel === 10) {
             return NextResponse.json({ message: "Không thể xóa tài khoản admin" }, { status: 403 });
         }
         
         // Tiến hành xóa người dùng
-        await pool.query("DELETE FROM user WHERE id = ?", [id]);
+        await pool.request()
+            .input('id', sql.Int, id)
+            .query("DELETE FROM dbo.users WHERE id = @id");
         
         return NextResponse.json({ message: "Xóa người dùng thành công" });
     } catch (error) {

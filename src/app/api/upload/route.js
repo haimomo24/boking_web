@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
+import dbUtils, { sql, poolPromise } from '../conect';
 
 export async function POST(request) {
   try {
@@ -37,6 +38,24 @@ export async function POST(request) {
     
     // Trả về URL của file
     const fileUrl = `/uploads/${fileName}`;
+
+    // Tùy chọn: Lưu thông tin file vào database
+    try {
+      const pool = await poolPromise;
+      await pool.request()
+        .input('fileName', sql.NVarChar, fileName)
+        .input('originalName', sql.NVarChar, file.name)
+        .input('fileUrl', sql.NVarChar, fileUrl)
+        .input('fileSize', sql.Int, buffer.length)
+        .input('uploadDate', sql.DateTime, new Date())
+        .query(`
+          INSERT INTO dbo.uploads (fileName, originalName, fileUrl, fileSize, uploadDate)
+          VALUES (@fileName, @originalName, @fileUrl, @fileSize, @uploadDate)
+        `);
+    } catch (dbError) {
+      // Chỉ log lỗi database, không ảnh hưởng đến việc upload file
+      console.error('Error saving file info to database:', dbError);
+    }
 
     console.log('File uploaded successfully:', fileUrl);
 

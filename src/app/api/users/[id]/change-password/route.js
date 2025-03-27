@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '@/app/api/conect';
+import dbUtils, { sql, poolPromise } from '../../../conect';
 
 export async function POST(request, { params }) {
     const { id } = params;
@@ -24,20 +24,22 @@ export async function POST(request, { params }) {
             );
         }
         
-        // Kiểm tra người dùng tồn tại và mật khẩu hiện tại đúng
-        const [userRows] = await pool.query(
-            "SELECT * FROM user WHERE id = ?", 
-            [id]
-        );
+        // Kết nối đến database
+        const pool = await poolPromise;
         
-        if (userRows.length === 0) {
+        // Kiểm tra người dùng tồn tại và mật khẩu hiện tại đúng
+        const userResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query("SELECT * FROM dbo.users WHERE id = @id");
+        
+        if (userResult.recordset.length === 0) {
             return NextResponse.json(
                 { message: "Không tìm thấy người dùng" }, 
                 { status: 404 }
             );
         }
         
-        const user = userRows[0];
+        const user = userResult.recordset[0];
         
         // Kiểm tra mật khẩu hiện tại
         if (user.password !== currentPassword) {
@@ -48,10 +50,10 @@ export async function POST(request, { params }) {
         }
         
         // Cập nhật mật khẩu mới
-        await pool.query(
-            "UPDATE user SET password = ? WHERE id = ?", 
-            [newPassword, id]
-        );
+        await pool.request()
+            .input('newPassword', sql.NVarChar, newPassword)
+            .input('id', sql.Int, id)
+            .query("UPDATE dbo.users SET password = @newPassword WHERE id = @id");
         
         return NextResponse.json({ 
             message: "Thay đổi mật khẩu thành công" 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '../../conect';
+import dbUtils, { sql, poolPromise } from '../../conect';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,17 +32,30 @@ export async function POST(request) {
     const image3Path = image3 ? await saveImage(image3) : '';
     const image4Path = image4 ? await saveImage(image4) : '';
 
-    // Lưu vào database
-    const [result] = await pool.query(
-      `INSERT INTO imagebooking (title, description,description2,description3,description4, images, image2, image3, image4) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description,description2, description3, description4 , mainImagePath, image2Path, image3Path, image4Path]
-    );
+    // Kết nối đến database
+    const pool = await poolPromise;
+
+    // Lưu vào database với tên bảng đầy đủ dbo.imagebooking
+    const result = await pool.request()
+      .input('title', sql.NVarChar, title)
+      .input('description', sql.NVarChar, description)
+      .input('description2', sql.NVarChar, description2 || '')
+      .input('description3', sql.NVarChar, description3 || '')
+      .input('description4', sql.NVarChar, description4 || '')
+      .input('mainImagePath', sql.NVarChar, mainImagePath)
+      .input('image2Path', sql.NVarChar, image2Path)
+      .input('image3Path', sql.NVarChar, image3Path)
+      .input('image4Path', sql.NVarChar, image4Path)
+      .query(`
+        INSERT INTO dbo.imagebooking (title, description, description2, description3, description4, images, image2, image3, image4) 
+        VALUES (@title, @description, @description2, @description3, @description4, @mainImagePath, @image2Path, @image3Path, @image4Path);
+        SELECT SCOPE_IDENTITY() AS id;
+      `);
 
     return NextResponse.json(
       { 
         message: 'Thêm sản phẩm thành công', 
-        id: result.insertId 
+        id: result.recordset[0].id 
       },
       { status: 201 }
     );

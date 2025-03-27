@@ -10,12 +10,16 @@ const UserDashboard = () => {
   const [error, setError] = useState(null);
   const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
+  
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(8); // Hiển thị 10 tài khoản mỗi trang
 
   // Kiểm tra quyền truy cập khi component mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Lấy thông tin người dùng từ localStorage - SỬA KEY TỪ 'userInfo' THÀNH 'user'
+        // Lấy thông tin người dùng từ localStorage
         const userInfoString = localStorage.getItem('user');
         
         // Log để debug
@@ -40,12 +44,22 @@ const UserDashboard = () => {
           return;
         }
         
-        // Kiểm tra level của người dùng
-        // Chấp nhận cả "admin" và "ADMIN" (không phân biệt hoa thường)
-        const userLevel = userInfo.level?.toLowerCase();
-        console.log("User level:", userLevel);
+        // Kiểm tra cấu trúc dữ liệu user
+        console.log("Full user object:", userInfo);
         
-        if (userLevel !== 'admin') {
+        // Trích xuất level từ userInfo, xử lý nhiều trường hợp có thể có
+        const userLevel = userInfo.level || 
+                         (userInfo.user && userInfo.user.level) || 
+                         '';
+                         
+        console.log("User level:", userLevel, "Type:", typeof userLevel);
+        
+        // Kiểm tra nhiều dạng level có thể có của admin
+        const isAdmin = String(userLevel) === '10' || 
+                       userLevel === 10 || 
+                       String(userLevel).toLowerCase() === 'admin';
+                       
+        if (!isAdmin) {
           console.log("User is not admin");
           setError('Bạn không có quyền truy cập vào trang này');
           setLoading(false);
@@ -113,6 +127,46 @@ const UserDashboard = () => {
       'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
     ];
     return colors[id % colors.length];
+  };
+
+  // Hàm kiểm tra xem người dùng có phải admin không
+  const isAdmin = (level) => {
+    return String(level) === '10' || 
+           level === 10 || 
+           String(level).toLowerCase() === 'admin';
+  };
+
+  // Hàm hiển thị cấp độ người dùng
+  const displayUserLevel = (level) => {
+    if (isAdmin(level)) {
+      return 'Admin';
+    }
+    return 'User';
+  };
+  
+  // Tính toán phân trang
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  
+  // Tính tổng số trang
+  const totalPages = Math.ceil(users.length / usersPerPage);
+  
+  // Hàm chuyển trang
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Hàm chuyển đến trang trước
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  // Hàm chuyển đến trang sau
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   // Hiển thị trạng thái không có quyền truy cập
@@ -205,82 +259,134 @@ const UserDashboard = () => {
           <p className="text-gray-600">Chưa có người dùng nào. Hãy thêm người dùng mới!</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">ID</th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Avatar</th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Tên Người Dùng</th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Email</th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Cấp Độ</th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
-                  <td className="py-4 px-4 whitespace-nowrap">
-                    {user.avatar ? (
-                      <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                        <img 
-                          src={user.avatar} 
-                          alt={`Avatar của ${user.username}`}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.style.display = 'none';
-                            e.target.parentNode.innerHTML = `
-                              <div class="h-10 w-10 rounded-full ${getAvatarColor(user.id)} flex items-center justify-center text-white font-medium">
-                                ${getInitials(user.username)}
-                              </div>
-                            `;
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className={`h-10 w-10 rounded-full ${getAvatarColor(user.id)} flex items-center justify-center text-white font-medium`}>
-                        {getInitials(user.username)}
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
-                  <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                  <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.level?.toLowerCase() === 'admin' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {user.level}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(user.id)}
-                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        className={`text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md ${
-                          user.level?.toLowerCase() === 'admin' ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        disabled={user.level?.toLowerCase() === 'admin'} // Không cho phép xóa tài khoản admin
-                        title={user.level?.toLowerCase() === 'admin' ? 'Không thể xóa tài khoản admin' : ''}
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
+        <>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">ID</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Avatar</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Tên Người Dùng</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Email</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Cấp Độ</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Thao Tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {currentUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      {user.avatar ? (
+                        <div className="relative h-10 w-10 overflow-hidden rounded-full">
+                          <img 
+                            src={user.avatar} 
+                            alt={`Avatar của ${user.username}`}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = 'none';
+                              e.target.parentNode.innerHTML = `
+                                <div class="h-10 w-10 rounded-full ${getAvatarColor(user.id)} flex items-center justify-center text-white font-medium">
+                                  ${getInitials(user.username)}
+                                                              </div>
+                              `;
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={`h-10 w-10 rounded-full ${getAvatarColor(user.id)} flex items-center justify-center text-white font-medium`}>
+                          {getInitials(user.username)}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
+                    <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                    <td className="py-4 px-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        isAdmin(user.level) 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {displayUserLevel(user.level)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(user.id)}
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md"
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className={`text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md ${
+                            isAdmin(user.level) ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          disabled={isAdmin(user.level)} // Không cho phép xóa tài khoản admin
+                          title={isAdmin(user.level) ? 'Không thể xóa tài khoản admin' : ''}
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Thêm phân trang */}
+          {users.length > usersPerPage && (
+            <div className="mt-6 flex justify-center">
+              <nav className="flex items-center space-x-2">
+                <button
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  &laquo; 
+                </button>
+                
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-3 py-1 rounded-md ${
+                        currentPage === number
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  &raquo;
+                </button>
+              </nav>
+            </div>
+          )}
+          
+         
+          
+        </>
       )}
     </div>
   );

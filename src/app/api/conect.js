@@ -1,14 +1,31 @@
-import mysql from "mysql2/promise";
+import sql from "mssql";
 
-// Thông tin kết nối MySQL
-const pool = mysql.createPool({
-  host: "localhost",   
-  user: "root",        
-  password: "",        
+const config = {
+  user: "sa", 
+  password: "123456a@", 
+  server: "192.168.88.95", 
   database: "booking", 
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+  options: {
+    encrypt: false, 
+    trustServerCertificate: true,
+  },
+  port: 1433, 
+};
 
-export default pool;
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then(pool => {
+    console.log("Kết nối SQL Server thành công!");
+    return pool;
+  })
+  .catch(err => {
+    console.error("Lỗi kết nối SQL Server:", err);
+    // Trong môi trường sản xuất, có thể bạn không muốn thoát quá trình
+    // process.exit(1);
+    return Promise.reject(err);
+  });
+
+// Thêm export mặc định
+const dbUtils = { sql, poolPromise };
+export default dbUtils;
+export { sql, poolPromise };
