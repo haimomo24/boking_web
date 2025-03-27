@@ -1,15 +1,15 @@
 import sql from "mssql";
 
 const config = {
-  user: "sa", 
-  password: "123456a@", 
-  server: "192.168.88.95", 
-  database: "booking", 
+  user: process.env.DB_USER || "sa",
+  password: process.env.DB_PASSWORD || "123456a@",
+  server: process.env.DB_SERVER || "192.168.88.95",
+  database: process.env.DB_NAME || "booking",
   options: {
-    encrypt: false, 
-    trustServerCertificate: true,
+    encrypt: process.env.DB_ENCRYPT === "true",
+    trustServerCertificate: process.env.DB_TRUST_CERT === "true" || true,
   },
-  port: 1433, 
+  port: parseInt(process.env.DB_PORT || "1433"),
 };
 
 const poolPromise = new sql.ConnectionPool(config)
@@ -20,12 +20,9 @@ const poolPromise = new sql.ConnectionPool(config)
   })
   .catch(err => {
     console.error("Lỗi kết nối SQL Server:", err);
-    // Trong môi trường sản xuất, có thể bạn không muốn thoát quá trình
-    // process.exit(1);
     return Promise.reject(err);
   });
 
-// Thêm export mặc định
 const dbUtils = { sql, poolPromise };
 export default dbUtils;
 export { sql, poolPromise };
