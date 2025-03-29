@@ -27,7 +27,9 @@ const Contact = () => {
         // Kết hợp dữ liệu từ API với trạng thái từ localStorage
         const contactsWithStatus = data.map(contact => ({
           ...contact,
-          advised: advisedStatusFromStorage[contact.id] || false
+          advised: advisedStatusFromStorage[contact.id] || false,
+          // Nếu đã tư vấn trong localStorage, cập nhật status thành 'completed'
+          status: advisedStatusFromStorage[contact.id] ? 'completed' : contact.status
         }));
         
         setContacts(contactsWithStatus);
@@ -45,7 +47,7 @@ const Contact = () => {
   const handleDelete = async (id) => {
     if (confirm('Bạn có chắc chắn muốn xóa liên hệ này không?')) {
       try {
-        const response = await fetch(`/api/contacts/${id}`, {
+        const response = await fetch(`/api/contacts?id=${id}`, {
           method: 'DELETE',
         });
         
@@ -69,26 +71,57 @@ const Contact = () => {
     }
   };
   
-  // Hàm xử lý thay đổi trạng thái tư vấn - chỉ lưu vào localStorage
-  const handleToggleAdvised = (id) => {
+  // Hàm xử lý khi click vào trạng thái - đã sửa đổi
+  const handleStatusClick = async (id) => {
     // Tìm liên hệ cần cập nhật
     const contactToUpdate = contacts.find(contact => contact.id === id);
     if (!contactToUpdate) return;
     
-    // Đảo ngược trạng thái tư vấn
-    const newAdvisedStatus = !contactToUpdate.advised;
+    // Nếu đã ở trạng thái completed thì không cần cập nhật nữa
+    if (contactToUpdate.status === 'completed') {
+      alert('Liên hệ này đã được tư vấn rồi!');
+      return;
+    }
     
-    // Cập nhật state
-    setContacts(contacts.map(contact => 
-      contact.id === id 
-        ? { ...contact, advised: newAdvisedStatus } 
-        : contact
-    ));
-    
-    // Lưu trạng thái vào localStorage
-    const advisedStatusFromStorage = JSON.parse(localStorage.getItem('advisedContacts') || '{}');
-    advisedStatusFromStorage[id] = newAdvisedStatus;
-    localStorage.setItem('advisedContacts', JSON.stringify(advisedStatusFromStorage));
+    try {
+      console.log('Cập nhật trạng thái cho liên hệ ID:', id);
+      
+      // Gọi API để cập nhật trạng thái trong database
+      const response = await fetch(`/api/contacts?id=${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'completed'
+        }),
+      });
+      
+      const responseData = await response.json();
+      console.log('Phản hồi từ server:', responseData);
+      
+      if (!response.ok) {
+        throw new Error(`Lỗi khi cập nhật trạng thái: ${responseData.error || 'Unknown error'}`);
+      }
+      
+      // Nếu cập nhật thành công, cập nhật state
+      setContacts(contacts.map(contact => 
+        contact.id === id 
+          ? { ...contact, advised: true, status: 'completed' } 
+          : contact
+      ));
+      
+      // Lưu trạng thái vào localStorage
+      const advisedStatusFromStorage = JSON.parse(localStorage.getItem('advisedContacts') || '{}');
+      advisedStatusFromStorage[id] = true;
+      localStorage.setItem('advisedContacts', JSON.stringify(advisedStatusFromStorage));
+      
+      alert('Đã cập nhật trạng thái thành công');
+      
+    } catch (error) {
+      console.error('Lỗi khi cập nhật trạng thái:', error);
+      alert('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
+    }
   };
 
   // Tính toán phân trang
@@ -142,8 +175,9 @@ const Contact = () => {
               <th>Tên</th>
               <th>Email</th>
               <th>Số điện thoại</th>
-              <th>Trạng thái tư vấn</th>
-              <th>Thao tác</th>
+              <th>Nội dung</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -154,27 +188,34 @@ const Contact = () => {
                   <td>{contact.name}</td>
                   <td>{contact.email}</td>
                   <td>{contact.phone}</td>
+                  <td>{contact.title || 'Không có nội dung'}</td>
                   <td>
-                    <span className={`status-badge ${contact.advised ? 'advised' : 'not-advised'}`}>
-                      {contact.advised ? 'Đã tư vấn' : 'Chưa tư vấn'}
+                    <span 
+                      className={`status-badge ${contact.status === 'new' ? 'status-new' : contact.status === 'processing' ? 'status-processing' : 'status-completed'} clickable-status`}
+                      onClick={() => handleStatusClick(contact.id)}
+                      title="Click để đánh dấu đã tư vấn"
+                    >
+                      {contact.status === 'completed' ? 'Đã tư vấn' : 
+                       contact.status === 'new' ? 'Mới' : 
+                       contact.status === 'processing' ? 'Đang xử lý' : 'Không xác định'}
                     </span>
                   </td>
                   <td>
                     <div className="action-buttons">
                       <button 
-                        className={`status-btn ${contact.advised ? 'mark-not-advised' : 'mark-advised'}`}
-                        onClick={() => handleToggleAdvised(contact.id)}
+                        className="delete-btn"
+                        onClick={() => handleDelete(contact.id)}
+                        title="Xóa liên hệ này"
                       >
-                        {contact.advised ? 'Đánh dấu chưa tư vấn' : 'Đánh dấu đã tư vấn'}
+                        Xóa
                       </button>
-                      
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="no-data">Không tìm thấy liên hệ nào</td>
+                <td colSpan="8" className="no-data">Không tìm thấy liên hệ nào</td>
               </tr>
             )}
           </tbody>
@@ -213,8 +254,6 @@ const Contact = () => {
           </button>
         </div>
       )}
-      
-      
       
       <style jsx>{`
         .contact-container {
@@ -317,6 +356,16 @@ const Contact = () => {
           font-weight: bold;
         }
         
+        .clickable-status {
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .clickable-status:hover {
+          transform: scale(1.05);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
         .advised {
           background-color: #d5f5e3;
           color: #27ae60;
@@ -327,6 +376,25 @@ const Contact = () => {
           background-color: #fef5e7;
           color: #d35400;
           border: 1px solid #f39c12;
+        }
+        
+        /* Thêm CSS cho trạng thái mới */
+        .status-new {
+          background-color: #ebf5fb;
+          color: #3498db;
+          border: 1px solid #3498db;
+        }
+        
+        .status-processing {
+          background-color: #fef5e7;
+          color: #f39c12;
+          border: 1px solid #f39c12;
+        }
+        
+        .status-completed {
+          background-color: #d5f5e3;
+          color: #27ae60;
+          border: 1px solid #2ecc71;
         }
         
         .error-container {
@@ -353,7 +421,7 @@ const Contact = () => {
           padding: 30px;
         }
         
-        .spinner {
+                .spinner {
           border: 4px solid rgba(0, 0, 0, 0.1);
           width: 36px;
           height: 36px;
@@ -393,7 +461,6 @@ const Contact = () => {
           margin-top: 20px;
           gap: 10px;
         }
-        
         .pagination-button {
           padding: 8px 16px;
           background-color: #3498db;
@@ -446,7 +513,6 @@ const Contact = () => {
           color: #666;
           margin-top: 10px;
           font-size: 14px;
-
         }
       `}</style>
     </div>
@@ -454,3 +520,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

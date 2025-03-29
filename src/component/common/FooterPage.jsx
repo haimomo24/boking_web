@@ -9,6 +9,7 @@ const FooterPage = () => {
   const [contactName, setContactName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  const [contactTitle, setContactTitle] = useState(''); // Thêm state cho title
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
@@ -38,6 +39,8 @@ const FooterPage = () => {
           name: contactName,
           phone: contactPhone,
           email: contactEmail || '',
+          title: contactTitle || '', // Thêm title vào dữ liệu gửi đi
+          status: 'new' // Mặc định status là 'new' cho liên hệ mới
         }),
       });
       
@@ -49,6 +52,7 @@ const FooterPage = () => {
       setContactName('');
       setContactPhone('');
       setContactEmail('');
+      setContactTitle('');
       setAcceptTerms(false);
       
       setSubmitStatus({
@@ -88,7 +92,7 @@ const FooterPage = () => {
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center md:items-start">
           {/* Phần thông tin bên trái */}
           <div className="md:w-1/2">
-            <img src="/images/logo1.jpg" alt="Trang An Logo" className="w-20 mb-3" />
+            <img src="/images/logopage.png" alt="Trang An Logo" className="w-20 mb-3" />
             
             <p className="mb-3 text-lg">
               Khu du lịch VHTL Bái Đính được UNESCO công nhận là di sản thế giới kép từ 2014
@@ -141,6 +145,15 @@ const FooterPage = () => {
                 className="w-full p-3 rounded-md mb-3 text-black bg-white"
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
+              />
+              {/* Thêm trường nhập liệu cho title */}
+              <input
+                type="text"
+                placeholder="Nội dung cần tư vấn"
+                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                value={contactTitle}
+                onChange={(e) => setContactTitle(e.target.value)}
+                required
               />
               <div className="flex items-center gap-2 mb-3">
                 <input 
