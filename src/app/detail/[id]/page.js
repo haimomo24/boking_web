@@ -30,7 +30,10 @@ const DetailPage = () => {
         setProduct(data);
         setActiveImage(data.images); // Mặc định hiển thị ảnh chính
         
-        // Xử lý đếm lượt xem
+        // Lấy số lượt xem từ database và đảm bảo là số
+        setViewCount(typeof data.looking === 'number' ? data.looking : 0);
+        
+        // Cập nhật lượt xem
         updateViewCount(id);
       } catch (err) {
         console.error('Error fetching product details:', err);
@@ -45,26 +48,34 @@ const DetailPage = () => {
     }
   }, [id]);
 
-  // Hàm cập nhật và lấy số lượt xem
-  const updateViewCount = (productId) => {
-    // Lấy tất cả lượt xem từ localStorage
-    const allViewsString = localStorage.getItem('productViews');
-    const allViews = allViewsString ? JSON.parse(allViewsString) : {};
-    
-    // Lấy lượt xem hiện tại của sản phẩm này
-    const currentViews = allViews[productId] || 0;
-    
-    // Tăng lượt xem lên 1
-    const newViews = currentViews + 1;
-    
-    // Cập nhật lượt xem cho sản phẩm này
-    allViews[productId] = newViews;
-    
-    // Lưu lại vào localStorage
-    localStorage.setItem('productViews', JSON.stringify(allViews));
-    
-    // Cập nhật state để hiển thị
-    setViewCount(newViews);
+  // Hàm cập nhật lượt xem - đã sửa để đảm bảo xử lý đúng
+  const updateViewCount = async (productId) => {
+    try {
+      // Kiểm tra xem đã xem sản phẩm này trong phiên hiện tại chưa
+      const viewedProducts = JSON.parse(localStorage.getItem('viewedProducts') || '{}');
+      
+      // Nếu đã xem rồi, không tăng lượt xem
+      if (viewedProducts[productId]) {
+        return;
+      }
+      
+      // Đánh dấu đã xem trong phiên này
+      viewedProducts[productId] = true;
+      localStorage.setItem('viewedProducts', JSON.stringify(viewedProducts));
+      
+      // Gọi API để tăng lượt xem trong database
+      const response = await fetch(`/api/imagebooking/${productId}`, {
+        method: 'PATCH',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Đảm bảo looking là số
+        setViewCount(typeof data.looking === 'number' ? data.looking : 0);
+      }
+    } catch (error) {
+      console.error('Error updating view count:', error);
+    }
   };
 
   // Hàm xử lý khi click vào ảnh nhỏ
@@ -127,7 +138,11 @@ const DetailPage = () => {
                 <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Điểm tham quan</span>
                 <span className="ml-3 text-sm opacity-80">Ninh Bình, Việt Nam</span>
                 
-               
+                {/* Hiển thị số lượt xem - đảm bảo hiển thị là số */}
+                {/* <div className="ml-auto flex items-center bg-black/30 px-3 py-1 rounded-full">
+                  <FaEye className="text-yellow-400 mr-2" />
+                  <span className="text-yellow-400 font-medium">{Number(viewCount).toLocaleString()} lượt xem</span>
+                </div> */}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">{product.title}</h1>
               <p className="text-lg opacity-90 max-w-2xl">
@@ -259,10 +274,10 @@ const DetailPage = () => {
                 </ul>
               </div>
 
-               {/* Hiển thị số lượt xem */}
-               <div className="ml-auto flex items-center  px-3 py-1 rounded-full">
+               {/* Hiển thị số lượt xem - đảm bảo hiển thị là số */}
+               <div className="ml-auto flex items-center px-3 py-1 rounded-full">
                   <FaEye className="text-yellow-400 mr-2" />
-                  <span className="text-yellow-400 font-medium">{viewCount.toLocaleString()} lượt xem</span>
+                  <span className="text-yellow-400 font-medium">{Number(viewCount).toLocaleString()} lượt xem</span>
                 </div>
             </article>
           </div>
