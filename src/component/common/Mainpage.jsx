@@ -156,7 +156,7 @@ const Mainpage = () => {
   return (
     <div>
       <div className="max-w-6xl mx-auto py-8 px-4 sm:py-12">
-        <h2 className="text-center text-xl sm:text-2xl font-semibold mb-6 px-2">
+        <h2 className="text-center text-xl sm:text-2xl font-semibold mb-6 px-2 text-[#800000]">
           Trải nghiệm KDL VHTL Bái Đính <span className="text-red-500"></span>
         </h2>
         

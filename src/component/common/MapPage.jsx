@@ -16,7 +16,7 @@ const MapPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4">
-      <h2 className="text-center text-3xl font-bold mb-10">
+      <h2 className="text-center text-3xl font-bold mb-10 text-[#800000]">
         Bản đồ tham quan chùa Bái Đính  
       </h2>
       

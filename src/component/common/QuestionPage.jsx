@@ -49,7 +49,7 @@ const QuestionPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto py-10">
-      <h2 className="text-center text-2xl font-semibold mb-6">
+      <h2 className="text-center text-[#800000] text-2xl font-semibold mb-6">
         <span className="text-pink-500">Câu Hỏi</span> Thường Gặp
       </h2>
       {faqData.map((item, index) => (
