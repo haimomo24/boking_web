@@ -46,3 +46,54 @@ body {
   flex: 1;
   padding: 20px;
 }
+
+/* Thêm animation cho hotline */
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(-5deg); }
+  20% { transform: rotate(5deg); }
+  30% { transform: rotate(-5deg); }
+  40% { transform: rotate(5deg); }
+  50% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.hotline-button {
+  animation: shake 1.5s infinite, pulse 2s infinite;
+}
+
+.hotline-popup {
+  animation: fadeIn 0.3s ease-out;
+}
+.zalo-button {
+  animation: shake 1.5s infinite, pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* Thêm vào phần animation đã có */
+.facebook-button {
+  animation: shake 1.5s infinite, pulse-facebook 2s infinite;
+}
+
+@keyframes pulse-facebook {
+  0% { box-shadow: 0 0 0 0 rgba(0, 132, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 132, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 132, 255, 0); }
+}
+

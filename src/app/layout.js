@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "@/component/LayoutWrapper";
+import FloatingHotline from "@/component/common/FloatingHotline";
 
 
 const geistSans = Geist({
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <LayoutWrapper>{children}</LayoutWrapper>
+        <FloatingHotline /> {/* Thêm dòng này */}
       </body>
     </html>
   );
