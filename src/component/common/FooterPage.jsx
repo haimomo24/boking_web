@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { FaFacebookF, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaEye } from "react-icons/fa";
 
@@ -107,7 +108,8 @@ const FooterPage = () => {
               <FaPhoneAlt className="text-lg" /> 19009251
             </p>
             <p className="flex items-center gap-2 mt-2">
-              <FaFacebookF className="text-lg" /> Fanpage KDL VHTL Bái Đính
+              
+              <FaFacebookF className="text-lg" /><Link href="">Fanpage KDL VHTL Bái Đính</Link> 
             </p>
             
             {/* Thêm phần hiển thị số lượt truy cập */}
