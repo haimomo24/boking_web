@@ -10,7 +10,7 @@ const FooterPage = () => {
   const [contactName, setContactName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactEmail, setContactEmail] = useState('');
-  const [contactTitle, setContactTitle] = useState(''); // Thêm state cho title
+  const [contactTitle, setContactTitle] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
@@ -40,8 +40,8 @@ const FooterPage = () => {
           name: contactName,
           phone: contactPhone,
           email: contactEmail || '',
-          title: contactTitle || '', // Thêm title vào dữ liệu gửi đi
-          status: 'new' // Mặc định status là 'new' cho liên hệ mới
+          title: contactTitle || '',
+          status: 'new'
         }),
       });
       
@@ -58,7 +58,7 @@ const FooterPage = () => {
       
       setSubmitStatus({
         type: 'success',
-        message: 'Gửi thông tin thành công! Chúng tôi sẽ liên hệ với bạn sớm.'
+        message: 'Gửi thông tin thành công!'
       });
     } catch (error) {
       console.error('Lỗi khi gửi form:', error);
@@ -72,63 +72,58 @@ const FooterPage = () => {
   };
 
   useEffect(() => {
-    // Kiểm tra xem đã có số lượt truy cập trong localStorage chưa
     const storedCount = localStorage.getItem('visitorCount');
     
     if (storedCount) {
-      // Nếu đã có, tăng thêm 1 và cập nhật
       const newCount = parseInt(storedCount) + 1;
       localStorage.setItem('visitorCount', newCount.toString());
       setVisitorCount(newCount);
     } else {
-      // Nếu chưa có, khởi tạo với giá trị 1
       localStorage.setItem('visitorCount', '1');
       setVisitorCount(1);
     }
   }, []);
 
   return (
-    <div>
-      <footer className="bg-[#1e3d37] text-white py-10 px-5 md:px-20">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center md:items-start">
-          {/* Phần thông tin bên trái */}
-          <div className="md:w-1/2">
-            <img src="/images/logopage.png" alt="Trang An Logo" className="w-20 mb-3" />
-            
-            <p className="mb-3 text-lg">
-              Khu du lịch VHTL Bái Đính được UNESCO công nhận là di sản thế giới kép từ 2014
-            </p>
-            <p className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-lg" /> Khu Du Lịch VHTL Bái Đính, Xã Gia Sinh, Huyện Gia Viễn, Ninh Bình
-            </p>
-            <p className="flex items-center gap-2 mt-2">
-              <FaEnvelope className="text-lg" /> sales@disantrangan.com
-            </p>
-            <p className="flex items-center gap-2 mt-2">
-              <FaPhoneAlt className="text-lg" /> 19009251
-            </p>
-            <p className="flex items-center gap-2 mt-2">
-              
-              <FaFacebookF className="text-lg" /><Link href="">Fanpage KDL VHTL Bái Đính</Link> 
-            </p>
-            
-            {/* Thêm phần hiển thị số lượt truy cập */}
-            <div className="mt-4 bg-[#2a4d47] p-3 rounded-lg inline-flex items-center gap-2">
-              <FaEye className="text-lg text-yellow-300" />
-              <div>
-                <p className="font-bold text-yellow-300">{visitorCount.toLocaleString()}</p>
-              </div>
-            </div>
+    <footer className="bg-[#1e3d37] text-white py-6 px-4 md:px-10">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between gap-6">
+        {/* Phần thông tin bên trái - thu gọn */}
+        <div className="md:w-1/2 flex flex-col space-y-2">
+          <div className="flex items-center gap-2">
+            <img src="/images/logopage.png" alt="Trang An Logo" className="w-12 h-12" />
+            <span className="text-sm md:text-base">Khu du lịch VHTL Bái Đính - Di sản thế giới UNESCO</span>
           </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+            <p className="flex items-center gap-1">
+              <FaMapMarkerAlt className="text-xs" /> KDL VHTL Bái Đính, Gia Sinh, Gia Viễn, Ninh Bình
+            </p>
+            <p className="flex items-center gap-1">
+              <FaEnvelope className="text-xs" />infor@trangangroup.com
+            </p>
+            <p className="flex items-center gap-1">
+              <FaPhoneAlt className="text-xs" /> 1900966909
+            </p>
+            <p className="flex items-center gap-1">
+              <FaFacebookF className="text-xs" /><Link href="https://www.facebook.com/chuabaidinh35">Fanpage KDL VHTL Bái Đính</Link> 
+            </p>
+          </div>
+          
+          <div className=" p-2 rounded-lg inline-flex items-center gap-1">
+            <FaEye className="text-xs text-yellow-300" />
+            <p className="text-xs font-bold text-yellow-300">{visitorCount.toLocaleString()} lượt truy cập</p>
+          </div>
+        </div>
 
-          {/* Phần form bên phải */}
-          <div className="md:w-1/2 bg-opacity-50 p-5 rounded-lg">
-            <h3 className="text-xl font-semibold mb-3">Để lại thông tin và nhận tư vấn</h3>
-            <form onSubmit={handleSubmitContact}>
+        {/* Phần form bên phải - thu gọn */}
+        <div className="md:w-1/2">
+          <h3 className="text-base font-semibold mb-2">Để lại thông tin và nhận tư vấn</h3>
+          <form onSubmit={handleSubmitContact} className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <input
                 type="text"
                 placeholder="Họ và tên"
-                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                className="w-full p-2 rounded-md text-black text-sm bg-white"
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 required
@@ -136,28 +131,31 @@ const FooterPage = () => {
               <input
                 type="text"
                 placeholder="Số điện thoại"
-                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                className="w-full p-2 rounded-md text-black text-sm bg-white"
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
                 required
               />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <input
                 type="email"
                 placeholder="Email (không bắt buộc)"
-                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                className="w-full p-2 rounded-md text-black text-sm bg-white"
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
               />
-              {/* Thêm trường nhập liệu cho title */}
               <input
                 type="text"
                 placeholder="Nội dung cần tư vấn"
-                className="w-full p-3 rounded-md mb-3 text-black bg-white"
+                className="w-full p-2 rounded-md text-black text-sm bg-white"
                 value={contactTitle}
                 onChange={(e) => setContactTitle(e.target.value)}
                 required
               />
-              <div className="flex items-center gap-2 mb-3">
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
                 <input 
                   type="checkbox" 
                   id="terms" 
@@ -165,32 +163,32 @@ const FooterPage = () => {
                   onChange={(e) => setAcceptTerms(e.target.checked)}
                   required
                 />
-                <label htmlFor="terms" className="text-sm">
-                  Tôi đồng ý với các <a href="#" className="text-blue-400">điều khoản & điều kiện</a>
+                <label htmlFor="terms" className="text-xs">
+                  Đồng ý với <a href="#" className="text-blue-400">điều khoản & điều kiện</a>
                 </label>
               </div>
               <button 
                 type="submit"
-                className="bg-pink-500 text-white px-5 py-2 rounded-lg hover:bg-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-pink-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Đang gửi...' : 'Gửi thông tin →'}
               </button>
-              {submitStatus && (
-                <div className={`mt-3 p-2 rounded ${submitStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {submitStatus.message}
-                </div>
-              )}
-            </form>
-          </div>
+            </div>
+            {submitStatus && (
+              <div className={`p-1 text-xs rounded ${submitStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {submitStatus.message}
+              </div>
+            )}
+          </form>
         </div>
+      </div>
 
-        {/* Phần cuối */}
-        <div className="text-center text-sm mt-10 opacity-80">
-          Khu du Lịch VHTL Bái Đính. Tất cả quyền được bảo lưu.
-        </div>
-      </footer>
-    </div>
+      {/* Phần cuối */}
+      <div className="text-center text-xs mt-4 opacity-80">
+        Khu du Lịch VHTL Bái Đính. Tất cả quyền được bảo lưu.
+      </div>
+    </footer>
   );
 };
 
