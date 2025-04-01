@@ -43,22 +43,28 @@ const CheckIn = () => {
   }, []);
 
   return (
-    <div className="w-full bg-[#f8f8f8] p-6 rounded-lg shadow-lg max-w-screen-xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-center text-[#800000] ">
+    <div className="w-full bg-[#f8f8f8] p-6 rounded-lg shadow-lg max-w-screen-lg mx-auto">
+      <h2 className="text-2xl font-bold mb-4 text-center text-[#800000]">
         Sơ đồ Check-in Chùa Bái Đính
       </h2>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Hình ảnh bản đồ */}
         <div className="md:w-3/4" ref={imageRef}>
-          <Image
-            src="/images/sodo.jpg"
-            alt="Sơ đồ check-in chùa Bái Đính"
-            width={900}
-            height={700}
-            className="w-full h-auto rounded-lg border-4 border-[#800000]"
-            style={{ objectFit: 'contain' }}
-          />
+          <div className="max-h-full overflow-hidden">
+            <Image
+              src="/images/sodo.jpg"
+              alt="Sơ đồ check-in chùa Bái Đính"
+              width={1000}
+              height={600}
+              quality={100}
+              className="w-full rounded-lg border-3 border-[#800000]"
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center top'
+              }}
+            />
+          </div>
         </div>
 
         {/* Danh sách địa điểm */}
@@ -66,14 +72,14 @@ const CheckIn = () => {
           className="md:w-1/4 bg-white border border-gray-200 rounded-lg flex flex-col"
           style={{ height: listHeight }}
         >
-          <h3 className="text-xl font-semibold py-2 text-[#800000] text-center border-b border-gray-200">Danh sách điểm check-in</h3>
+          <h3 className="text-lg font-semibold py-2 text-[#800000] text-center border-b border-gray-200">Danh sách điểm check-in</h3>
 
-          <div className="grid grid-cols-1 gap-1.5 p-3 overflow-y-auto flex-grow">
+          <div className="grid grid-cols-1 gap-1 p-2 overflow-y-auto flex-grow">
             {locations.map((location) => (
               <Link 
                 key={location.id} 
                 href={location.link} 
-                className="block p-1.5 bg-gray-100 rounded border-l-2 border-[#800000] hover:bg-gray-200 transition"
+                className="block p-1 bg-gray-100 rounded border-l-2 border-[#800000] hover:bg-gray-200 transition"
               >
                 <div className="text-[#800000] font-medium text-xs">
                   {location.id}. {location.name}
