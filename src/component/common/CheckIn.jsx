@@ -44,7 +44,7 @@ const CheckIn = () => {
 
   return (
     <div className="w-full bg-[#f8f8f8] p-6 rounded-lg shadow-lg max-w-screen-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center text-[#800000]">
+      <h2 className="text-2xl font-bold mb-4 text-center text-[#800000] font-sans">
         Sơ đồ Check-in Chùa Bái Đính
       </h2>
 
@@ -67,24 +67,26 @@ const CheckIn = () => {
           </div>
         </div>
 
-        {/* Danh sách địa điểm */}
+        {/* Danh sách địa điểm - Đã chỉnh sửa màu hover */}
         <div 
-          className="md:w-1/4 bg-white border border-gray-200 rounded-lg flex flex-col"
+          className="md:w-1/4 bg-white border border-gray-200 rounded-lg flex flex-col shadow-md"
           style={{ height: listHeight }}
         >
-          <h3 className="text-lg font-semibold py-2 text-[#800000] text-center border-b border-gray-200">Danh sách điểm check-in</h3>
+          <h3 className="text-lg font-bold py-3 text-[#800000] text-center border-b border-gray-200 bg-gray-50 font-sans">
+            Danh sách điểm check-in
+          </h3>
 
-          <div className="grid grid-cols-1 gap-1 p-2 overflow-y-auto flex-grow">
+          <div className="grid grid-cols-1 gap-2 p-3 overflow-y-auto flex-grow">
             {locations.map((location) => (
               <Link 
                 key={location.id} 
                 href={location.link} 
-                className="block p-1 bg-gray-100 rounded border-l-2 border-[#800000] hover:bg-gray-200 transition"
+                className="block p-2 bg-gray-50 rounded-md border-l-3 border-[#800000] hover:bg-[#fff0f0] hover:border-l-4 transition-all duration-200 hover:scale-105 hover:shadow-md font-sans group"
               >
-                <div className="text-[#800000] font-medium text-xs">
+                <div className="text-[#800000] font-semibold text-sm tracking-wide group-hover:text-[#a00000]">
                   {location.id}. {location.name}
                 </div>
-                <p className="text-gray-600 text-[10px] italic">{location.desc}</p>
+                <p className="text-gray-600 text-xs font-medium tracking-wide group-hover:text-[#800000]">{location.desc}</p>
               </Link>
             ))}
           </div>
