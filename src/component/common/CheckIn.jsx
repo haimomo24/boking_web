@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,29 +21,54 @@ const locations = [
 ];
 
 const CheckIn = () => {
+  const imageRef = useRef(null);
+  const [listHeight, setListHeight] = useState('auto');
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (imageRef.current) {
+        const imageHeight = imageRef.current.clientHeight;
+        setListHeight(`${imageHeight}px`);
+      }
+    };
+
+    // Cập nhật chiều cao khi component mount
+    updateHeight();
+    
+    // Cập nhật chiều cao khi cửa sổ thay đổi kích thước
+    window.addEventListener('resize', updateHeight);
+    
+    // Cleanup listener khi component unmount
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
   return (
     <div className="w-full bg-[#f8f8f8] p-6 rounded-lg shadow-lg max-w-screen-xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-center text-[#800000] uppercase tracking-wide">
+      <h2 className="text-3xl font-bold mb-6 text-center text-[#800000] ">
         Sơ đồ Check-in Chùa Bái Đính
       </h2>
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Hình ảnh bản đồ */}
-        <div className="md:w-1/2">
+        <div className="md:w-3/4" ref={imageRef}>
           <Image
             src="/images/sodo.jpg"
             alt="Sơ đồ check-in chùa Bái Đính"
             width={900}
             height={700}
             className="w-full h-auto rounded-lg border-4 border-[#800000]"
+            style={{ objectFit: 'contain' }}
           />
         </div>
 
         {/* Danh sách địa điểm */}
-        <div className="md:w-1/2 bg-white border border-gray-200 rounded-lg md:h-[700px] flex flex-col">
+        <div 
+          className="md:w-1/4 bg-white border border-gray-200 rounded-lg flex flex-col"
+          style={{ height: listHeight }}
+        >
           <h3 className="text-xl font-semibold py-2 text-[#800000] text-center border-b border-gray-200">Danh sách điểm check-in</h3>
 
-          <div className="grid grid-cols-1 gap-1.5 p-3 overflow-y-auto h-full">
+          <div className="grid grid-cols-1 gap-1.5 p-3 overflow-y-auto flex-grow">
             {locations.map((location) => (
               <Link 
                 key={location.id} 
