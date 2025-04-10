@@ -10,9 +10,9 @@ const FloatingHotline = () => {
   const [isZaloOpen, setIsZaloOpen] = useState(false);
   const [isFacebookOpen, setIsFacebookOpen] = useState(false);
   
-  const phoneNumber = "1900966909"; // Thay đổi số điện thoại tại đây
-  const zaloNumber = "0123456789"; // Thay đổi số Zalo tại đây (không có khoảng trắng)
-  const facebookLink = "https://www.facebook.com/messages/t/615780361886356"; // Thay đổi link Facebook Messenger của bạn
+  const phoneNumber = "1900966909"; 
+  const zaloNumber = "0123456789"; 
+  const facebookLink = "https://www.facebook.com/chuabaidinh35"; 
 
   const togglePhone = () => {
     setIsPhoneOpen(!isPhoneOpen);
