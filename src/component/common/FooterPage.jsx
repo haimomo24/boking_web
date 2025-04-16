@@ -90,13 +90,14 @@ const FooterPage = () => {
         {/* Phần thông tin bên trái - thu gọn */}
         <div className="md:w-1/2 flex flex-col space-y-2">
           <div className="flex items-center gap-2">
-            <img src="/images/logopage.png" alt="Trang An Logo" className="w-12 h-12" />
-            <span className="text-sm md:text-base">Khu du lịch VHTL Bái Đính - Di sản thế giới UNESCO</span>
+            <img src="/images/logochua.jpg" alt="Trang An Logo" className="w-12 h-12" />
+            <span className="text-sm md:text-base font-serif italic tracking-wide font-medium">Khu Du lịch Văn hóa Tâm linh Bái Đính - Di sản Văn hoá và Thiên nhiên thế giới</span>
+
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <p className="flex items-center gap-1">
-              <FaMapMarkerAlt className="text-xs" /> KDL VHTL Bái Đính, Gia Sinh, Gia Viễn, Ninh Bình
+              <FaMapMarkerAlt className="text-xs" />  Gia Sinh, Gia Viễn, Ninh Bình
             </p>
             <p className="flex items-center gap-1">
               <FaEnvelope className="text-xs" />infor@trangangroup.com
@@ -105,7 +106,7 @@ const FooterPage = () => {
               <FaPhoneAlt className="text-xs" /> 1900966909
             </p>
             <p className="flex items-center gap-1">
-              <FaFacebookF className="text-xs" /><Link href="https://www.facebook.com/chuabaidinh35">Fanpage KDL VHTL Bái Đính</Link> 
+              <FaFacebookF className="text-xs" /><Link href="https://www.facebook.com/chuabaidinh35">Fanpage Danh Lam  Bái Đính</Link> 
             </p>
           </div>
           

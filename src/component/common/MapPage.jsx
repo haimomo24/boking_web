@@ -47,7 +47,7 @@ const MapPage = () => {
           <div className="relative w-full h-0 pb-[56.25%]">
             <iframe 
               className="absolute top-0 left-0 w-full h-full rounded-lg shadow-md"
-              src="https://www.youtube.com/embed/gPT0x6ex9I8" 
+              src="https://www.youtube.com/embed/bXtKdV24ADw" 
               title="Video giới thiệu chùa Bái Đính"
               frameBorder="0" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

@@ -263,7 +263,7 @@ const DetailPage = () => {
               {/* Mẹo du lịch */}
               <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 my-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Mẹo khi tham quan</h2>
-                <ul className="list-disc pl-5 space-y-2">
+                <ul className="list-disc text-blackblack pl-5 space-y-2">
                   <li>Nên mặc trang phục lịch sự khi vào các khu vực tâm linh</li>
                   <li>Mang theo nước uống và kem chống nắng vào mùa hè</li>
                   <li>Nên mặc trang phục lịch sự khi vào các khu vực tâm linh</li>
